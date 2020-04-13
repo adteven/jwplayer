@@ -98,15 +98,17 @@ Object.assign(CoreShim.prototype, {
 
         // Create/get click-to-play media element, and call .load() to unblock user-gesture to play requirement
         let mediaPool = MediaElementPool();
-        if (!model.get('backgroundLoading')) {
-            mediaPool = SharedMediaPool(mediaPool.getPrimedElement(), mediaPool);
-        }
+        if (!__HEADLESS__) {
+            if (!model.get('backgroundLoading')) {
+                mediaPool = SharedMediaPool(mediaPool.getPrimedElement(), mediaPool);
+            }
 
-        const primeUi = new UI(getElementWindow(this.originalContainer)).once('gesture', () => {
-            mediaPool.prime();
-            this.preload();
-            primeUi.destroy();
-        });
+            const primeUi = new UI(getElementWindow(this.originalContainer)).once('gesture', () => {
+                mediaPool.prime();
+                this.preload();
+                primeUi.destroy();
+            });
+        }
 
         model.on('change:errorEvent', logError);
 
@@ -287,7 +289,7 @@ function setupError(core, api, error) {
 
         const contextual = model.get('contextual');
         // Remove (and hide) the player if it failed to set up in contextual mode; otherwise, show the error view
-        if (!contextual) {
+        if (!contextual && !__HEADLESS__) {
             const errorContainer = ErrorContainer(core, playerError);
             if (ErrorContainer.cloneIcon) {
                 errorContainer.querySelector('.jw-icon').appendChild(ErrorContainer.cloneIcon('error'));

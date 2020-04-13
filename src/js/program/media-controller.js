@@ -273,7 +273,11 @@ export default class MediaController extends Events {
             if (!this.background) {
                 this.thenPlayPromise.cancel();
                 this.pause();
-                container.removeChild(provider.video);
+                if (provider.removeFromContainer) {
+                    provider.removeFromContainer();
+                } else {
+                    container.removeChild(provider.video);
+                }
                 this.container = null;
             }
         } else {
